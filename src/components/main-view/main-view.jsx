@@ -6,6 +6,13 @@ const imagesByFilename = {
   "parasite.png": new URL("../../images/parasite.png", import.meta.url).href,
   "pastlives.png": new URL("../../images/pastlives.png", import.meta.url).href,
   "thehandmaiden.png": new URL("../../images/thehandmaiden.png", import.meta.url).href,
+  "sympathyforMrVengeance.png": new URL("../../images/sympathyforMrVengeance.png", import.meta.url).href,
+  "castawayonthemoon.png": new URL("../../images/castawayonthemoon.png", import.meta.url).href,
+  "marathon.png": new URL("../../images/marathon.png", import.meta.url).href,
+  "moonlitwinter.png": new URL("../../images/moonlitwinter.png", import.meta.url).href,
+  "1987.png": new URL("../../images/1987.png", import.meta.url).href,
+  "mother.png": new URL("../../images/mother.png", import.meta.url).href,
+  "burning.png": new URL("../../images/burning.png", import.meta.url).href,
 };
 
 export const MainView = () => {
