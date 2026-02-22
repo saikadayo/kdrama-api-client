@@ -17429,11 +17429,22 @@ const MainView = ()=>{
             const data = await response.json();
             if (!response.ok) throw new Error(data?.message || `HTTP ${response.status}`);
             if (!Array.isArray(data)) throw new Error("API did not return an array of movies.");
-            const moviesWithIds = data.map((m, index)=>({
-                    ...m,
-                    id: m._id || `${m.title}-${index}`
+            const normalizedMovies = data.map((m, index)=>({
+                    id: m._id || `${m.Title}-${index}`,
+                    title: m.Title,
+                    description: m.Description,
+                    image: m.ImagePath ? `/images/${m.ImagePath}` : null,
+                    genre: {
+                        name: m.Genre?.Name,
+                        description: m.Genre?.Description
+                    },
+                    director: {
+                        name: m.Director?.Name,
+                        bio: m.Director?.Bio,
+                        birthYear: m.Director?.Birth
+                    }
                 }));
-            setMovies(moviesWithIds);
+            setMovies(normalizedMovies);
         }).catch((err)=>{
             console.error("Failed to fetch movies:", err);
             setError(String(err.message || err));
@@ -17444,7 +17455,7 @@ const MainView = ()=>{
         onBackClick: ()=>setSelectedMovie(null)
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 40,
+        lineNumber: 51,
         columnNumber: 7
     }, undefined);
     if (error) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -17454,14 +17465,14 @@ const MainView = ()=>{
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 48,
+        lineNumber: 59,
         columnNumber: 12
     }, undefined);
     if (movies.length === 0) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
         children: "Loading movies..."
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 52,
+        lineNumber: 63,
         columnNumber: 12
     }, undefined);
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -17470,7 +17481,7 @@ const MainView = ()=>{
                 children: "My KDrama Movies"
             }, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 57,
+                lineNumber: 68,
                 columnNumber: 7
             }, undefined),
             movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
@@ -17478,13 +17489,13 @@ const MainView = ()=>{
                     onMovieClick: (newSelectedMovie)=>setSelectedMovie(newSelectedMovie)
                 }, movie.id, false, {
                     fileName: "src/components/main-view/main-view.jsx",
-                    lineNumber: 60,
+                    lineNumber: 71,
                     columnNumber: 9
                 }, undefined))
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 56,
+        lineNumber: 67,
         columnNumber: 5
     }, undefined);
 };

@@ -22,12 +22,23 @@ export const MainView = () => {
           throw new Error("API did not return an array of movies.");
         }
 
-        const moviesWithIds = data.map((m, index) => ({
-          ...m,
-          id: m._id || `${m.title}-${index}`,
+        const normalizedMovies = data.map((m, index) => ({
+          id: m._id || `${m.Title}-${index}`,
+          title: m.Title,
+          description: m.Description,
+          image: m.ImagePath ? `/images/${m.ImagePath}` : null,
+          genre: {
+            name: m.Genre?.Name,
+            description: m.Genre?.Description,
+          },
+          director: {
+            name: m.Director?.Name,
+            bio: m.Director?.Bio,
+            birthYear: m.Director?.Birth,
+          },
         }));
 
-        setMovies(moviesWithIds);
+        setMovies(normalizedMovies);
       })
       .catch((err) => {
         console.error("Failed to fetch movies:", err);
@@ -60,9 +71,7 @@ export const MainView = () => {
         <MovieCard
           key={movie.id}
           movie={movie}
-          onMovieClick={(newSelectedMovie) =>
-            setSelectedMovie(newSelectedMovie)
-          }
+          onMovieClick={(newSelectedMovie) => setSelectedMovie(newSelectedMovie)}
         />
       ))}
     </div>
