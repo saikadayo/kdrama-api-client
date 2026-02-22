@@ -1,75 +1,50 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 
 export const MainView = () => {
-  const pastLivesImg = new URL(
-    "../../assets/images/pastlives.png",
-    import.meta.url
-  ).href;
-
-  const parasiteImg = new URL(
-    "../../assets/images/parasite.png",
-    import.meta.url
-  ).href;
-
-  const handmaidenImg = new URL(
-    "../../assets/images/thehandmaiden.png",
-    import.meta.url
-  ).href;
-
-  const [movies] = useState([
-    {
-      id: 1,
-      title: "Past Lives",
-      description:
-        "Two childhood friends reunite years later and reflect on fate, love, and the paths not taken.",
-      image: pastLivesImg,
-      director: {
-        name: "Celine Song",
-        bio: "She makes romance movies.",
-        birthYear: "1988",
-      },
-      genre: {
-        name: "Romance",
-        description: "lovey dovey",
-      },
-    },
-    {
-      id: 2,
-      title: "Parasite",
-      description:
-        "A struggling family infiltrates a wealthy household in a darkly comedic thriller about class division.",
-      image: parasiteImg,
-      director: {
-        name: "Bong Joon Ho",
-        bio: "He is a man who makes movies.",
-        birthYear: "1969",
-      },
-      genre: {
-        name: "Thriller",
-        description: "spooky movies",
-      },
-    },
-    {
-      id: 3,
-      title: "The Handmaiden",
-      description:
-        "A con man hires a pickpocket to become a wealthy heiress’s handmaiden as part of an elaborate scheme.",
-      image: handmaidenImg,
-      director: {
-        name: "Park Chan-wook",
-        bio: "He makes horror and romance films.",
-        birthYear: "1963",
-      },
-      genre: {
-        name: "Romance",
-        description: "lovey dovey",
-      },
-    },
-  ]);
-
+  const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const API_URL = "https://kdrama-api-b87cf2d2bb43.herokuapp.com";
+
+    fetch(`${API_URL}/movies`)
+      .then(async (response) => {
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.message || `HTTP ${response.status}`);
+        }
+
+        if (!Array.isArray(data)) {
+          throw new Error("API did not return an array of movies.");
+        }
+
+        const normalizedMovies = data.map((m, index) => ({
+          id: m._id || `${m.Title}-${index}`,
+          title: m.Title,
+          description: m.Description,
+          image: m.ImagePath ? `/images/${m.ImagePath}` : null,
+          genre: {
+            name: m.Genre?.Name,
+            description: m.Genre?.Description,
+          },
+          director: {
+            name: m.Director?.Name,
+            bio: m.Director?.Bio,
+            birthYear: m.Director?.Birth,
+          },
+        }));
+
+        setMovies(normalizedMovies);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch movies:", err);
+        setError(String(err.message || err));
+      });
+  }, []);
 
   if (selectedMovie) {
     return (
@@ -80,8 +55,12 @@ export const MainView = () => {
     );
   }
 
+  if (error) {
+    return <div>Error loading movies: {error}</div>;
+  }
+
   if (movies.length === 0) {
-    return <div>The list is empty!</div>;
+    return <div>Loading movies...</div>;
   }
 
   return (
