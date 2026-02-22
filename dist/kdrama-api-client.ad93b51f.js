@@ -177,7 +177,7 @@
 
   // Only insert newRequire.load when it is actually used.
   // The code in this file is linted against ES5, so dynamic import is not allowed.
-  function $parcel$resolve(url) {  url = importMap[url] || url;  return import.meta.resolve(distDir + url);}newRequire.resolve = $parcel$resolve;
+  // INSERT_LOAD_HERE
 
   Object.defineProperty(newRequire, 'root', {
     get: function () {
@@ -17420,70 +17420,48 @@ var _movieView = require("../movie-view/movie-view");
 var _s = $RefreshSig$();
 const MainView = ()=>{
     _s();
-    const pastLivesImg = new URL(require("9ddb629026d24f8c")).href;
-    const parasiteImg = new URL(require("b9ef407b4c18927d")).href;
-    const handmaidenImg = new URL(require("38ca7db1aa54ea21")).href;
-    const [movies] = (0, _react.useState)([
-        {
-            id: 1,
-            title: "Past Lives",
-            description: "Two childhood friends reunite years later and reflect on fate, love, and the paths not taken.",
-            image: pastLivesImg,
-            director: {
-                name: "Celine Song",
-                bio: "She makes romance movies.",
-                birthYear: "1988"
-            },
-            genre: {
-                name: "Romance",
-                description: "lovey dovey"
-            }
-        },
-        {
-            id: 2,
-            title: "Parasite",
-            description: "A struggling family infiltrates a wealthy household in a darkly comedic thriller about class division.",
-            image: parasiteImg,
-            director: {
-                name: "Bong Joon Ho",
-                bio: "He is a man who makes movies.",
-                birthYear: "1969"
-            },
-            genre: {
-                name: "Thriller",
-                description: "spooky movies"
-            }
-        },
-        {
-            id: 3,
-            title: "The Handmaiden",
-            description: "A con man hires a pickpocket to become a wealthy heiress\u2019s handmaiden as part of an elaborate scheme.",
-            image: handmaidenImg,
-            director: {
-                name: "Park Chan-wook",
-                bio: "He makes horror and romance films.",
-                birthYear: "1963"
-            },
-            genre: {
-                name: "Romance",
-                description: "lovey dovey"
-            }
-        }
-    ]);
+    const [movies, setMovies] = (0, _react.useState)([]);
     const [selectedMovie, setSelectedMovie] = (0, _react.useState)(null);
+    const [error, setError] = (0, _react.useState)("");
+    (0, _react.useEffect)(()=>{
+        const API_URL = "https://kdrama-api-b87cf2d2bb43.herokuapp.com";
+        fetch(`${API_URL}/movies`).then(async (response)=>{
+            const data = await response.json();
+            if (!response.ok) throw new Error(data?.message || `HTTP ${response.status}`);
+            if (!Array.isArray(data)) throw new Error("API did not return an array of movies.");
+            const moviesWithIds = data.map((m, index)=>({
+                    ...m,
+                    id: m._id || `${m.title}-${index}`
+                }));
+            setMovies(moviesWithIds);
+        }).catch((err)=>{
+            console.error("Failed to fetch movies:", err);
+            setError(String(err.message || err));
+        });
+    }, []);
     if (selectedMovie) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieView.MovieView), {
         movie: selectedMovie,
         onBackClick: ()=>setSelectedMovie(null)
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 76,
+        lineNumber: 40,
         columnNumber: 7
     }, undefined);
+    if (error) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        children: [
+            "Error loading movies: ",
+            error
+        ]
+    }, void 0, true, {
+        fileName: "src/components/main-view/main-view.jsx",
+        lineNumber: 48,
+        columnNumber: 12
+    }, undefined);
     if (movies.length === 0) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-        children: "The list is empty!"
+        children: "Loading movies..."
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 84,
+        lineNumber: 52,
         columnNumber: 12
     }, undefined);
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -17492,7 +17470,7 @@ const MainView = ()=>{
                 children: "My KDrama Movies"
             }, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 89,
+                lineNumber: 57,
                 columnNumber: 7
             }, undefined),
             movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
@@ -17500,17 +17478,17 @@ const MainView = ()=>{
                     onMovieClick: (newSelectedMovie)=>setSelectedMovie(newSelectedMovie)
                 }, movie.id, false, {
                     fileName: "src/components/main-view/main-view.jsx",
-                    lineNumber: 92,
+                    lineNumber: 60,
                     columnNumber: 9
                 }, undefined))
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 88,
+        lineNumber: 56,
         columnNumber: 5
     }, undefined);
 };
-_s(MainView, "snzeMrrA7O8yv3DbMK5Xey+TPok=");
+_s(MainView, "+e2UGsKtZRTEjhKmwakyd/iCBrU=");
 _c = MainView;
 var _c;
 $RefreshReg$(_c, "MainView");
@@ -17520,7 +17498,7 @@ $RefreshReg$(_c, "MainView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","../movie-card/movie-card":"6BY1s","../movie-view/movie-view":"dkfGy","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX","9ddb629026d24f8c":"kdEZW","b9ef407b4c18927d":"8D76K","38ca7db1aa54ea21":"dnkP2"}],"6BY1s":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","../movie-card/movie-card":"6BY1s","../movie-view/movie-view":"dkfGy","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX"}],"6BY1s":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$f387 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 $parcel$ReactRefreshHelpers$f387.init();
 var prevRefreshReg = globalThis.$RefreshReg$;
@@ -19892,7 +19870,7 @@ const MovieView = ({ movie, onBackClick })=>{
                 lineNumber: 4,
                 columnNumber: 7
             }, undefined),
-            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
+            movie.image && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
                 src: movie.image,
                 alt: `${movie.title} poster`,
                 style: {
@@ -19903,15 +19881,15 @@ const MovieView = ({ movie, onBackClick })=>{
                 }
             }, void 0, false, {
                 fileName: "src/components/movie-view/movie-view.jsx",
-                lineNumber: 6,
-                columnNumber: 7
+                lineNumber: 8,
+                columnNumber: 9
             }, undefined),
-            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+            movie.description && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
                 children: movie.description
             }, void 0, false, {
                 fileName: "src/components/movie-view/movie-view.jsx",
-                lineNumber: 17,
-                columnNumber: 7
+                lineNumber: 21,
+                columnNumber: 29
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
                 children: [
@@ -19919,7 +19897,7 @@ const MovieView = ({ movie, onBackClick })=>{
                         children: "Genre:"
                     }, void 0, false, {
                         fileName: "src/components/movie-view/movie-view.jsx",
-                        lineNumber: 20,
+                        lineNumber: 24,
                         columnNumber: 9
                     }, undefined),
                     " ",
@@ -19927,7 +19905,7 @@ const MovieView = ({ movie, onBackClick })=>{
                 ]
             }, void 0, true, {
                 fileName: "src/components/movie-view/movie-view.jsx",
-                lineNumber: 19,
+                lineNumber: 23,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
@@ -19936,7 +19914,7 @@ const MovieView = ({ movie, onBackClick })=>{
                         children: "Director:"
                     }, void 0, false, {
                         fileName: "src/components/movie-view/movie-view.jsx",
-                        lineNumber: 24,
+                        lineNumber: 28,
                         columnNumber: 9
                     }, undefined),
                     " ",
@@ -19944,7 +19922,7 @@ const MovieView = ({ movie, onBackClick })=>{
                 ]
             }, void 0, true, {
                 fileName: "src/components/movie-view/movie-view.jsx",
-                lineNumber: 23,
+                lineNumber: 27,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -19955,7 +19933,7 @@ const MovieView = ({ movie, onBackClick })=>{
                 children: "Back"
             }, void 0, false, {
                 fileName: "src/components/movie-view/movie-view.jsx",
-                lineNumber: 27,
+                lineNumber: 31,
                 columnNumber: 7
             }, undefined)
         ]
@@ -19974,15 +19952,6 @@ $RefreshReg$(_c, "MovieView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX"}],"kdEZW":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("pastlives.75105788.png") + "?" + Date.now();
-
-},{}],"8D76K":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("parasite.7e7f32ba.png") + "?" + Date.now();
-
-},{}],"dnkP2":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("thehandmaiden.9e94260c.png") + "?" + Date.now();
-
-},{}],"lJZlQ":[function() {},{}]},["7r6Bq","gYcKb"], "gYcKb", "parcelRequiree89b", {}, "./", "/", "http://localhost:1234")
+},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX"}],"lJZlQ":[function() {},{}]},["7r6Bq","gYcKb"], "gYcKb", "parcelRequiree89b", {}, null, null, "http://localhost:1234")
 
 //# sourceMappingURL=kdrama-api-client.ad93b51f.js.map
