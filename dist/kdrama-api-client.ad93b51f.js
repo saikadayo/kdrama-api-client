@@ -177,7 +177,7 @@
 
   // Only insert newRequire.load when it is actually used.
   // The code in this file is linted against ES5, so dynamic import is not allowed.
-  // INSERT_LOAD_HERE
+  function $parcel$resolve(url) {  url = importMap[url] || url;  return import.meta.resolve(distDir + url);}newRequire.resolve = $parcel$resolve;
 
   Object.defineProperty(newRequire, 'root', {
     get: function () {
@@ -17418,6 +17418,11 @@ var _react = require("react");
 var _movieCard = require("../movie-card/movie-card");
 var _movieView = require("../movie-view/movie-view");
 var _s = $RefreshSig$();
+const imagesByFilename = {
+    "parasite.png": new URL(require("dcdf262b86a67474")).href,
+    "pastlives.png": new URL(require("e514995b0a02603f")).href,
+    "thehandmaiden.png": new URL(require("1511e6ca16ddb579")).href
+};
 const MainView = ()=>{
     _s();
     const [movies, setMovies] = (0, _react.useState)([]);
@@ -17433,7 +17438,7 @@ const MainView = ()=>{
                     id: m._id || `${m.Title}-${index}`,
                     title: m.Title,
                     description: m.Description,
-                    image: m.ImagePath ? `/images/${m.ImagePath}` : null,
+                    image: m.ImagePath ? imagesByFilename[m.ImagePath] || null : null,
                     genre: {
                         name: m.Genre?.Name,
                         description: m.Genre?.Description
@@ -17455,7 +17460,7 @@ const MainView = ()=>{
         onBackClick: ()=>setSelectedMovie(null)
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 51,
+        lineNumber: 57,
         columnNumber: 7
     }, undefined);
     if (error) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -17465,15 +17470,15 @@ const MainView = ()=>{
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 59,
-        columnNumber: 12
+        lineNumber: 64,
+        columnNumber: 21
     }, undefined);
     if (movies.length === 0) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
         children: "Loading movies..."
     }, void 0, false, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 63,
-        columnNumber: 12
+        lineNumber: 65,
+        columnNumber: 35
     }, undefined);
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
         children: [
@@ -17481,7 +17486,7 @@ const MainView = ()=>{
                 children: "My KDrama Movies"
             }, void 0, false, {
                 fileName: "src/components/main-view/main-view.jsx",
-                lineNumber: 68,
+                lineNumber: 69,
                 columnNumber: 7
             }, undefined),
             movies.map((movie)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _movieCard.MovieCard), {
@@ -17489,13 +17494,13 @@ const MainView = ()=>{
                     onMovieClick: (newSelectedMovie)=>setSelectedMovie(newSelectedMovie)
                 }, movie.id, false, {
                     fileName: "src/components/main-view/main-view.jsx",
-                    lineNumber: 71,
+                    lineNumber: 72,
                     columnNumber: 9
                 }, undefined))
         ]
     }, void 0, true, {
         fileName: "src/components/main-view/main-view.jsx",
-        lineNumber: 67,
+        lineNumber: 68,
         columnNumber: 5
     }, undefined);
 };
@@ -17509,7 +17514,7 @@ $RefreshReg$(_c, "MainView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","../movie-card/movie-card":"6BY1s","../movie-view/movie-view":"dkfGy","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX"}],"6BY1s":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","../movie-card/movie-card":"6BY1s","../movie-view/movie-view":"dkfGy","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX","dcdf262b86a67474":"e00h1","e514995b0a02603f":"hkLpY","1511e6ca16ddb579":"4ljHI"}],"6BY1s":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$f387 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 $parcel$ReactRefreshHelpers$f387.init();
 var prevRefreshReg = globalThis.$RefreshReg$;
@@ -19963,6 +19968,15 @@ $RefreshReg$(_c, "MovieView");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX"}],"lJZlQ":[function() {},{}]},["7r6Bq","gYcKb"], "gYcKb", "parcelRequiree89b", {}, null, null, "http://localhost:1234")
+},{"react/jsx-dev-runtime":"dVPUn","@parcel/transformer-js/src/esmodule-helpers.js":"1i1LX","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"kOQUX"}],"e00h1":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("parasite.4ac974fc.png") + "?" + Date.now();
+
+},{}],"hkLpY":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("pastlives.b225d218.png") + "?" + Date.now();
+
+},{}],"4ljHI":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("thehandmaiden.237fa640.png") + "?" + Date.now();
+
+},{}],"lJZlQ":[function() {},{}]},["7r6Bq","gYcKb"], "gYcKb", "parcelRequiree89b", {}, "./", "/", "http://localhost:1234")
 
 //# sourceMappingURL=kdrama-api-client.ad93b51f.js.map

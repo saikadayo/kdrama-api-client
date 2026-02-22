@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 
+const imagesByFilename = {
+  "parasite.png": new URL("../../images/parasite.png", import.meta.url).href,
+  "pastlives.png": new URL("../../images/pastlives.png", import.meta.url).href,
+  "thehandmaiden.png": new URL("../../images/thehandmaiden.png", import.meta.url).href,
+};
+
 export const MainView = () => {
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -26,7 +32,7 @@ export const MainView = () => {
           id: m._id || `${m.Title}-${index}`,
           title: m.Title,
           description: m.Description,
-          image: m.ImagePath ? `/images/${m.ImagePath}` : null,
+          image: m.ImagePath ? imagesByFilename[m.ImagePath] || null : null,
           genre: {
             name: m.Genre?.Name,
             description: m.Genre?.Description,
@@ -55,13 +61,8 @@ export const MainView = () => {
     );
   }
 
-  if (error) {
-    return <div>Error loading movies: {error}</div>;
-  }
-
-  if (movies.length === 0) {
-    return <div>Loading movies...</div>;
-  }
+  if (error) return <div>Error loading movies: {error}</div>;
+  if (movies.length === 0) return <div>Loading movies...</div>;
 
   return (
     <div>
