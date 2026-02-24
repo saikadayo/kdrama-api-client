@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
+import { LoginView } from "../login-view/login-view";
+import { SignupView } from "../signup-view/signup-view";
 
 const imagesByFilename = {
   "parasite.png": new URL("../../images/parasite.png", import.meta.url).href,
@@ -16,14 +18,28 @@ const imagesByFilename = {
 };
 
 export const MainView = () => {
+  const API_URL = "https://kdrama-api-b87cf2d2bb43.herokuapp.com";
+
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const API_URL = "https://kdrama-api-b87cf2d2bb43.herokuapp.com";
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
-    fetch(`${API_URL}/movies`)
+  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+
+  useEffect(() => {
+    if (!token) return;
+
+    fetch(`${API_URL}/movies`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(async (response) => {
         const data = await response.json();
 
@@ -55,9 +71,69 @@ export const MainView = () => {
       })
       .catch((err) => {
         console.error("Failed to fetch movies:", err);
+
+        // If token is invalid/expired, force logout flow
+        if (String(err.message || err).includes("401")) {
+          handleLogout();
+          return;
+        }
+
         setError(String(err.message || err));
       });
-  }, []);
+  }, [token]);
+
+  const handleLoggedIn = (user, token) => {
+    setUser(user);
+    setToken(token);
+
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
+    setError("");
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setToken("");
+    setMovies([]);
+    setSelectedMovie(null);
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
+    setAuthMode("login");
+    setError("");
+  };
+
+  if (!token) {
+    return (
+      <div>
+        <h1>My KDrama Movies</h1>
+
+        {authMode === "login" ? (
+          <>
+            <LoginView apiUrl={API_URL} onLoggedIn={handleLoggedIn} />
+
+            <div style={{ marginTop: "1rem" }}>
+              <button onClick={() => setAuthMode("signup")}>
+                Need an account? Sign up
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <SignupView apiUrl={API_URL} onSignedUp={() => setAuthMode("login")} />
+
+            <div style={{ marginTop: "1rem" }}>
+              <button onClick={() => setAuthMode("login")}>
+                Already have an account? Log in
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   if (selectedMovie) {
     return (
@@ -74,6 +150,10 @@ export const MainView = () => {
   return (
     <div>
       <h1>My KDrama Movies</h1>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
 
       {movies.map((movie) => (
         <MovieCard
