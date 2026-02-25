@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { Card, Form, Button, Alert } from "react-bootstrap";
 
 export const LoginView = ({ apiUrl, onLoggedIn }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState("");
 
   const validate = () => {
@@ -52,39 +52,51 @@ export const LoginView = ({ apiUrl, onLoggedIn }) => {
 
   return (
     <div>
-      <h2>Login</h2>
+    <Card className="shadow-sm">
+      <Card.Body>
+        <Card.Title className="form-title">Login</Card.Title>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Username:{" "}
-            <input
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="loginUsername">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
+              required
             />
-          </label>
-        </div>
+          </Form.Group>
 
-        <div>
-          <label>
-            Password:{" "}
-            <input
+          <Form.Group className="mb-3" controlId="loginPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
+              required
             />
-          </label>
-        </div>
+          </Form.Group>
 
-        <div style={{ marginTop: "1rem" }}>
-          <button type="submit">Login</button>
-        </div>
+          <div className="d-grid">
+            <Button type="submit"
+              variant="outline-secondary"
+              size="sm"
+              className="ui-btn w-100"
+            >
+              Login
+            </Button>
+          </div>
 
-        {error ? <div style={{ marginTop: "1rem" }}>Error: {error}</div> : null}
-      </form>
+          {error && (
+            <Alert variant="danger" className="mt-3 mb-0">
+              {error}
+            </Alert>
+          )}
+        </Form>
+      </Card.Body>
+    </Card>
     </div>
   );
 };

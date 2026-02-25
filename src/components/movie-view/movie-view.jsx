@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import Button from "react-bootstrap/Button";
 
 export const MovieView = ({ movie, onBackClick }) => {
   return (
@@ -28,9 +29,14 @@ export const MovieView = ({ movie, onBackClick }) => {
         <strong>Director:</strong> {movie.director?.name}
       </p>
 
-      <button onClick={onBackClick} style={{ marginTop: "1rem" }}>
+      <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={onBackClick}
+            className="ui-btn mb-4"
+            >
         Back
-      </button>
+      </Button>
     </div>
   );
 };

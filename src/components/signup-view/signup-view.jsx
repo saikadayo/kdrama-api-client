@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Card, Form, Button, Alert } from "react-bootstrap";
 
 export const SignupView = ({ apiUrl, onSignedUp }) => {
   const [username, setUsername] = useState("");
@@ -10,11 +11,14 @@ export const SignupView = ({ apiUrl, onSignedUp }) => {
   const [success, setSuccess] = useState("");
 
   const validate = () => {
-    if (!username || username.trim().length < 5) return "Username must be at least 5 characters.";
-    if (!/^[a-z0-9]+$/i.test(username)) return "Username must be alphanumeric.";
+    if (!username || username.trim().length < 5)
+      return "Username must be at least 5 characters.";
+    if (!/^[a-z0-9]+$/i.test(username))
+      return "Username must be alphanumeric.";
     if (!password) return "Password is required.";
     if (!email) return "Email is required.";
-    if (!/^\S+@\S+\.\S+$/.test(email)) return "Email does not appear to be valid.";
+    if (!/^\S+@\S+\.\S+$/.test(email))
+      return "Email does not appear to be valid.";
     return "";
   };
 
@@ -44,15 +48,16 @@ export const SignupView = ({ apiUrl, onSignedUp }) => {
         const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-          // your API sometimes returns text, sometimes JSON
-          const message = data?.message || data?.errors?.[0]?.msg || `HTTP ${response.status}`;
+          const message =
+            data?.message ||
+            data?.errors?.[0]?.msg ||
+            `HTTP ${response.status}`;
           throw new Error(message);
         }
 
         setError("");
         setSuccess("Signup successful. You can now log in.");
 
-        // send them back to login after a successful signup
         if (onSignedUp) onSignedUp();
       })
       .catch((err) => {
@@ -64,63 +69,78 @@ export const SignupView = ({ apiUrl, onSignedUp }) => {
 
   return (
     <div>
-      <h2>Sign up</h2>
+    <Card className="shadow-sm">
+      <Card.Body>
+        <Card.Title className="form-title">Sign Up</Card.Title>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Username:{" "}
-            <input
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="signupUsername">
+            <Form.Label>Username</Form.Label>
+            <Form.Control
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
+              required
+              minLength={5}
             />
-          </label>
-        </div>
+          </Form.Group>
 
-        <div>
-          <label>
-            Password:{" "}
-            <input
+          <Form.Group className="mb-3" controlId="signupPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
+              required
             />
-          </label>
-        </div>
+          </Form.Group>
 
-        <div>
-          <label>
-            Email:{" "}
-            <input
+          <Form.Group className="mb-3" controlId="signupEmail">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              required
             />
-          </label>
-        </div>
+          </Form.Group>
 
-        <div>
-          <label>
-            Birthday:{" "}
-            <input
+          <Form.Group className="mb-3" controlId="signupBirthday">
+            <Form.Label>Birthday</Form.Label>
+            <Form.Control
               type="date"
               value={birthday}
               onChange={(e) => setBirthday(e.target.value)}
             />
-          </label>
-        </div>
+          </Form.Group>
 
-        <div style={{ marginTop: "1rem" }}>
-          <button type="submit">Sign up</button>
-        </div>
+          <div className="d-grid">
+            <Button type="submit"
+              variant="outline-secondary"
+              size="sm"
+              className="ui-btn w-100"
+            >
+              Sign Up
+            </Button>
+          </div>
 
-        {error ? <div style={{ marginTop: "1rem" }}>Error: {error}</div> : null}
-        {success ? <div style={{ marginTop: "1rem" }}>{success}</div> : null}
-      </form>
+          {error && (
+            <Alert variant="danger" className="mt-3 mb-0">
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert variant="success" className="mt-3 mb-0">
+              {success}
+            </Alert>
+          )}
+        </Form>
+      </Card.Body>
+    </Card>
     </div>
   );
 };
