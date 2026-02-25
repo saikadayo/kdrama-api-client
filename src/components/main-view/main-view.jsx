@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { Container, Row, Col, Button, Alert } from "react-bootstrap";
+import { NavigationBar } from "../navigation-bar/navigation-bar";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
+import { Footer } from "../footer/footer";
 
 const imagesByFilename = {
   "parasite.png": new URL("../../images/parasite.png", import.meta.url).href,
@@ -30,7 +33,7 @@ export const MainView = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const [authMode, setAuthMode] = useState("login"); // "login" | "signup"
+  const [authMode, setAuthMode] = useState("login");
 
   useEffect(() => {
     if (!token) return;
@@ -68,28 +71,25 @@ export const MainView = () => {
         }));
 
         setMovies(normalizedMovies);
+        setError("");
       })
       .catch((err) => {
-        console.error("Failed to fetch movies:", err);
-
-        // If token is invalid/expired, force logout flow
         if (String(err.message || err).includes("401")) {
           handleLogout();
           return;
         }
-
         setError(String(err.message || err));
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleLoggedIn = (user, token) => {
     setUser(user);
     setToken(token);
-
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
-
     setError("");
+    setSelectedMovie(null);
   };
 
   const handleLogout = () => {
@@ -97,71 +97,137 @@ export const MainView = () => {
     setToken("");
     setMovies([]);
     setSelectedMovie(null);
-
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-
     setAuthMode("login");
     setError("");
   };
 
+  const goHome = () => {
+    setSelectedMovie(null);
+    setError("");
+    if (!token) setAuthMode("login");
+  };
+
+  const navbar = (
+    <NavigationBar
+      isLoggedIn={Boolean(token)}
+      onLogout={handleLogout}
+      onHome={goHome}
+      onShowLogin={() => setAuthMode("login")}
+    />
+  );
+
+  // Logged out view
   if (!token) {
     return (
-      <div>
-        <h1>My KDrama Movies</h1>
+      <>
+        {navbar}
 
-        {authMode === "login" ? (
-          <>
-            <LoginView apiUrl={API_URL} onLoggedIn={handleLoggedIn} />
+        <Container fluid="md" className="py-3">
+          <Row className="justify-content-center">
+            <Col xs={12} sm={10} md={7} lg={5} xxl={4}>
+              {authMode === "login" ? (
+                <>
+                  <LoginView apiUrl={API_URL} onLoggedIn={handleLoggedIn} />
 
-            <div style={{ marginTop: "1rem" }}>
-              <button onClick={() => setAuthMode("signup")}>
-                Need an account? Sign up
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <SignupView apiUrl={API_URL} onSignedUp={() => setAuthMode("login")} />
+                  <div className="d-grid mt-3">
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="ui-btn w-100"
+                      onClick={() => setAuthMode("signup")}
+                    >
+                      Need an account? Sign up.
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <SignupView
+                    apiUrl={API_URL}
+                    onSignedUp={() => setAuthMode("login")}
+                  />
 
-            <div style={{ marginTop: "1rem" }}>
-              <button onClick={() => setAuthMode("login")}>
-                Already have an account? Log in
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+                  <div className="d-grid mt-3">
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="ui-btn w-100"
+                      onClick={() => setAuthMode("login")}
+                    >
+                      Already have an account? Log in.
+                    </Button>
+                  </div>
+                </>
+              )}
+            </Col>
+          </Row>
+        </Container>
+        <Footer />
+      </>
     );
   }
 
+  // Single movie view
   if (selectedMovie) {
     return (
-      <MovieView
-        movie={selectedMovie}
-        onBackClick={() => setSelectedMovie(null)}
-      />
+      <>
+        {navbar}
+        <Container fluid="md" className="py-3">
+          <MovieView movie={selectedMovie} onBackClick={goHome} />
+        </Container>
+        <Footer />
+      </>
     );
   }
 
-  if (error) return <div>Error loading movies: {error}</div>;
-  if (movies.length === 0) return <div>Loading movies...</div>;
+  // Error
+  if (error) {
+    return (
+      <>
+        {navbar}
+        <Container fluid="md" className="py-3">
+          <Alert variant="danger">Error loading movies: {error}</Alert>
+        </Container>
+        <Footer />
+      </>
+    );
+  }
 
+  // Loading
+  if (movies.length === 0) {
+    return (
+      <>
+        {navbar}
+        <Container fluid="md" className="py-3">
+          <div>Loading movies...</div>
+        </Container>
+        <Footer />
+      </>
+    );
+  }
+
+  // Movies grid
   return (
-    <div>
-      <h1>My KDrama Movies</h1>
+    <>
+      {navbar}
 
-      <div style={{ marginBottom: "1rem" }}>
-        <button onClick={handleLogout}>Logout</button>
-      </div>
-
-      {movies.map((movie) => (
-        <MovieCard
-          key={movie.id}
-          movie={movie}
-          onMovieClick={(newSelectedMovie) => setSelectedMovie(newSelectedMovie)}
-        />
-      ))}
-    </div>
+      <Container fluid="md" className="py-3">
+        <Row className="g-3">
+          {movies.map((movie) => (
+            <Col key={movie.id} xs={12} sm={6} md={4} lg={3} xxl={2}>
+              <MovieCard
+                movie={movie}
+                onMovieClick={(newSelectedMovie) =>
+                  setSelectedMovie(newSelectedMovie)
+                }
+              />
+            </Col>
+          ))}
+        </Row>
+      </Container>
+      <Footer />
+    </>
   );
 };
