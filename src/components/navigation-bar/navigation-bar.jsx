@@ -1,45 +1,76 @@
-import { Navbar, Container, Button } from "react-bootstrap";
+import { Navbar, Container, Nav } from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 
 export const NavigationBar = ({
   isLoggedIn,
   onLogout,
-  onHome,
-  onShowLogin,
 }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onLogout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <Navbar className="custom-navbar">
-      {/* Full-width outer bar */}
       <div className="w-100">
-        {/* Constrained inner content */}
         <Container fluid="md" className="d-flex align-items-center">
           <Navbar.Brand
-            onClick={onHome}
+            as={Link}
+            to={isLoggedIn ? "/" : "/login"}
             className="brand-title"
           >
             My KDrama Movies
           </Navbar.Brand>
 
-          <div className="ms-auto">
-            {isLoggedIn ? (
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                className="ui-btn"
-                onClick={onLogout}
-              >
-                Logout
-              </Button>
+          <Nav className="ms-auto">
+            {!isLoggedIn ? (
+              <>
+                <Nav.Link
+                  as={Link}
+                  to="/login"
+                  className="nav-btn"
+                >
+                  Login
+                </Nav.Link>
+
+                <Nav.Link
+                  as={Link}
+                  to="/signup"
+                  className="nav-btn"
+                >
+                  Signup
+                </Nav.Link>
+              </>
             ) : (
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                className="ui-btn"
-                onClick={onShowLogin}
-              >
-                Login
-              </Button>
+              <>
+                <Nav.Link
+                  as={Link}
+                  to="/"
+                  className="nav-btn"
+                >
+                  Home
+                </Nav.Link>
+
+                <Nav.Link
+                  as={Link}
+                  to="/profile"
+                  className="nav-btn"
+                >
+                  Profile
+                </Nav.Link>
+
+                <Nav.Link
+                  onClick={handleLogout}
+                  className="nav-btn"
+                  style={{ cursor: "pointer" }}
+                >
+                  Logout
+                </Nav.Link>
+              </>
             )}
-          </div>
+          </Nav>
         </Container>
       </div>
     </Navbar>
