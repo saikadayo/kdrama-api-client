@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Button, Alert, Card } from "react-bootstrap";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  Link,
+} from "react-router-dom";
+
 import { NavigationBar } from "../navigation-bar/navigation-bar";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
@@ -24,34 +33,24 @@ export const MainView = () => {
   const API_URL = "https://kdrama-api-b87cf2d2bb43.herokuapp.com";
 
   const [movies, setMovies] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState(null);
   const [error, setError] = useState("");
-
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const [authMode, setAuthMode] = useState("login");
-
   useEffect(() => {
     if (!token) return;
 
     fetch(`${API_URL}/movies`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (response) => {
         const data = await response.json();
 
         if (!response.ok) {
           throw new Error(data?.message || `HTTP ${response.status}`);
-        }
-
-        if (!Array.isArray(data)) {
-          throw new Error("API did not return an array of movies.");
         }
 
         const normalizedMovies = data.map((m, index) => ({
@@ -80,7 +79,6 @@ export const MainView = () => {
         }
         setError(String(err.message || err));
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleLoggedIn = (user, token) => {
@@ -89,145 +87,132 @@ export const MainView = () => {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
     setError("");
-    setSelectedMovie(null);
   };
 
   const handleLogout = () => {
     setUser(null);
     setToken("");
     setMovies([]);
-    setSelectedMovie(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    setAuthMode("login");
     setError("");
-  };
-
-  const goHome = () => {
-    setSelectedMovie(null);
-    setError("");
-    if (!token) setAuthMode("login");
   };
 
   const navbar = (
     <NavigationBar
       isLoggedIn={Boolean(token)}
       onLogout={handleLogout}
-      onHome={goHome}
-      onShowLogin={() => setAuthMode("login")}
     />
   );
 
-  // Logged out view
-  if (!token) {
+  const GridView = () => {
+    if (error) {
+      return <Alert variant="danger">Error loading movies: {error}</Alert>;
+    }
+
+    if (movies.length === 0) {
+      return <div>Loading movies...</div>;
+    }
+
     return (
-      <>
-        {navbar}
-
-        <Container fluid="md" className="py-3">
-          <Row className="justify-content-center">
-            <Col xs={12} sm={10} md={7} lg={5} xxl={4}>
-              {authMode === "login" ? (
-                <>
-                  <LoginView apiUrl={API_URL} onLoggedIn={handleLoggedIn} />
-
-                  <div className="d-grid mt-3">
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="ui-btn w-100"
-                      onClick={() => setAuthMode("signup")}
-                    >
-                      Need an account? Sign up.
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <SignupView
-                    apiUrl={API_URL}
-                    onSignedUp={() => setAuthMode("login")}
-                  />
-
-                  <div className="d-grid mt-3">
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="ui-btn w-100"
-                      onClick={() => setAuthMode("login")}
-                    >
-                      Already have an account? Log in.
-                    </Button>
-                  </div>
-                </>
-              )}
-            </Col>
-          </Row>
-        </Container>
-        <Footer />
-      </>
+      <Row className="g-3">
+        {movies.map((movie) => (
+          <Col key={movie.id} xs={12} sm={6} md={4} lg={3} xxl={2}>
+            <MovieCard movie={movie} />
+          </Col>
+        ))}
+      </Row>
     );
-  }
+  };
 
-  // Single movie view
-  if (selectedMovie) {
+  const ProfileView = () => {
     return (
-      <>
-        {navbar}
-        <Container fluid="md" className="py-3">
-          <MovieView movie={selectedMovie} onBackClick={goHome} />
-        </Container>
-        <Footer />
-      </>
+      <Card>
+        <Card.Body>
+          <Card.Title className="movie-title">Profile</Card.Title>
+          <div className="text-muted">
+            {user ? `Logged in as: ${user.Username}` : "No user loaded."}
+          </div>
+        </Card.Body>
+      </Card>
     );
-  }
+  };
 
-  // Error
-  if (error) {
+  const AuthView = () => {
+    const location = useLocation();
+
+    useEffect(() => {
+      // keeps URL and view in sync
+    }, [location.pathname]);
+
     return (
-      <>
-        {navbar}
-        <Container fluid="md" className="py-3">
-          <Alert variant="danger">Error loading movies: {error}</Alert>
-        </Container>
-        <Footer />
-      </>
-    );
-  }
+      <Row className="justify-content-center">
+        <Col xs={12} sm={10} md={7} lg={5} xxl={4}>
+          {location.pathname === "/signup" ? (
+            <>
+              <SignupView
+                apiUrl={API_URL}
+                onSignedUp={() => {}}
+              />
 
-  // Loading
-  if (movies.length === 0) {
-    return (
-      <>
-        {navbar}
-        <Container fluid="md" className="py-3">
-          <div>Loading movies...</div>
-        </Container>
-        <Footer />
-      </>
-    );
-  }
+              <div className="d-grid mt-3">
+                <Button
+                  as={Link}
+                  to="/login"
+                  variant="outline-secondary"
+                  size="sm"
+                  className="ui-btn w-100"
+                >
+                  Already have an account? Log in.
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <LoginView apiUrl={API_URL} onLoggedIn={handleLoggedIn} />
 
-  // Movies grid
+              <div className="d-grid mt-3">
+                <Button
+                  as={Link}
+                  to="/signup"
+                  variant="outline-secondary"
+                  size="sm"
+                  className="ui-btn w-100"
+                >
+                  Need an account? Sign up.
+                </Button>
+              </div>
+            </>
+          )}
+        </Col>
+      </Row>
+    );
+  };
+
   return (
-    <>
+    <BrowserRouter>
       {navbar}
 
       <Container fluid="md" className="py-3">
-        <Row className="g-3">
-          {movies.map((movie) => (
-            <Col key={movie.id} xs={12} sm={6} md={4} lg={3} xxl={2}>
-              <MovieCard
-                movie={movie}
-                onMovieClick={(newSelectedMovie) =>
-                  setSelectedMovie(newSelectedMovie)
-                }
-              />
-            </Col>
-          ))}
-        </Row>
+        <Routes>
+          {!token ? (
+            <>
+              <Route path="/login" element={<AuthView />} />
+              <Route path="/signup" element={<AuthView />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<GridView />} />
+              <Route path="/movies/:movieId" element={<MovieView movies={movies} />} />
+              <Route path="/profile" element={<ProfileView />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </>
+          )}
+        </Routes>
       </Container>
+
       <Footer />
-    </>
+    </BrowserRouter>
   );
 };
