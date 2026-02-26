@@ -14,6 +14,7 @@ export const LoginView = ({ apiUrl, onLoggedIn }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setError("");
 
     const validationError = validate();
     if (validationError) {
@@ -32,10 +33,11 @@ export const LoginView = ({ apiUrl, onLoggedIn }) => {
       }),
     })
       .then(async (response) => {
-        const data = await response.json();
+        const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-          throw new Error(data?.message || `HTTP ${response.status}`);
+          const msg = data?.message || "Invalid username or password.";
+          throw new Error(msg);
         }
 
         if (!data?.token) {
@@ -45,58 +47,59 @@ export const LoginView = ({ apiUrl, onLoggedIn }) => {
         onLoggedIn(data.user, data.token);
       })
       .catch((err) => {
-        console.error("Login failed:", err);
+        // No console.error here — expected auth failures shouldn't trigger the dev overlay
         setError(String(err.message || err));
       });
   };
 
   return (
     <div>
-    <Card className="shadow-sm">
-      <Card.Body>
-        <Card.Title className="form-title">Login</Card.Title>
+      <Card className="shadow-sm">
+        <Card.Body>
+          <Card.Title className="form-title">Login</Card.Title>
 
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3" controlId="loginUsername">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              autoComplete="username"
-              required
-            />
-          </Form.Group>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="loginUsername">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                required
+              />
+            </Form.Group>
 
-          <Form.Group className="mb-3" controlId="loginPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </Form.Group>
+            <Form.Group className="mb-3" controlId="loginPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </Form.Group>
 
-          <div className="d-grid">
-            <Button type="submit"
-              variant="outline-secondary"
-              size="sm"
-              className="ui-btn w-100"
-            >
-              Login
-            </Button>
-          </div>
+            <div className="d-grid">
+              <Button
+                type="submit"
+                variant="outline-secondary"
+                size="sm"
+                className="ui-btn w-100"
+              >
+                Login
+              </Button>
+            </div>
 
-          {error && (
-            <Alert variant="danger" className="mt-3 mb-0">
-              {error}
-            </Alert>
-          )}
-        </Form>
-      </Card.Body>
-    </Card>
+            {error && (
+              <Alert variant="danger" className="mt-3 mb-0">
+                {error}
+              </Alert>
+            )}
+          </Form>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
