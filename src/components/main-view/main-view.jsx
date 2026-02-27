@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Button, Alert, Card } from "react-bootstrap";
+import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 import {
   BrowserRouter,
   Routes,
@@ -14,6 +14,7 @@ import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
 import { LoginView } from "../login-view/login-view";
 import { SignupView } from "../signup-view/signup-view";
+import { ProfileView } from "../profile-view/profile-view";
 import { Footer } from "../footer/footer";
 
 const imagesByFilename = {
@@ -53,6 +54,10 @@ export const MainView = () => {
           throw new Error(data?.message || `HTTP ${response.status}`);
         }
 
+        if (!Array.isArray(data)) {
+          throw new Error("API did not return an array of movies.");
+        }
+
         const normalizedMovies = data.map((m, index) => ({
           id: m._id || `${m.Title}-${index}`,
           title: m.Title,
@@ -79,6 +84,7 @@ export const MainView = () => {
         }
         setError(String(err.message || err));
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleLoggedIn = (user, token) => {
@@ -96,6 +102,11 @@ export const MainView = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setError("");
+  };
+
+  const handleUserUpdated = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   const navbar = (
@@ -117,43 +128,29 @@ export const MainView = () => {
     return (
       <Row className="g-3">
         {movies.map((movie) => (
-          <Col key={movie.id} xs={12} sm={6} md={4} lg={3} xxl={2}>
-            <MovieCard movie={movie} />
+          <Col key={movie.id} xs={10} sm={6} md={4} lg={3} xxl={2}>
+            <MovieCard
+              movie={movie}
+              user={user}
+              token={token}
+              apiUrl={API_URL}
+              onUserUpdated={handleUserUpdated}
+            />
           </Col>
         ))}
       </Row>
     );
   };
 
-  const ProfileView = () => {
-    return (
-      <Card>
-        <Card.Body>
-          <Card.Title className="movie-title">Profile</Card.Title>
-          <div className="text-muted">
-            {user ? `Logged in as: ${user.Username}` : "No user loaded."}
-          </div>
-        </Card.Body>
-      </Card>
-    );
-  };
-
   const AuthView = () => {
     const location = useLocation();
-
-    useEffect(() => {
-      // keeps URL and view in sync
-    }, [location.pathname]);
 
     return (
       <Row className="justify-content-center">
         <Col xs={12} sm={10} md={7} lg={5} xxl={4}>
           {location.pathname === "/signup" ? (
             <>
-              <SignupView
-                apiUrl={API_URL}
-                onSignedUp={() => {}}
-              />
+              <SignupView apiUrl={API_URL} onSignedUp={() => {}} />
 
               <div className="d-grid mt-3">
                 <Button
@@ -204,8 +201,37 @@ export const MainView = () => {
           ) : (
             <>
               <Route path="/" element={<GridView />} />
-              <Route path="/movies/:movieId" element={<MovieView movies={movies} />} />
-              <Route path="/profile" element={<ProfileView />} />
+
+              <Route
+                path="/movies/:movieId"
+                element={<MovieView movies={movies} />}
+              />
+
+              <Route
+                path="/profile"
+                element={
+                  <ProfileView
+                    apiUrl={API_URL}
+                    token={token}
+                    user={user}
+                    movies={movies}
+                    onUserUpdated={handleUserUpdated}
+                    onDeregister={handleLogout}
+                    renderMovieCard={(m, hooks) => (
+                      <MovieCard
+                        movie={m}
+                        user={user}
+                        token={token}
+                        apiUrl={API_URL}
+                        onUserUpdated={handleUserUpdated}
+                        onBeforeUnfavorite={hooks?.onBeforeUnfavorite}
+                        onAfterUnfavorite={hooks?.onAfterUnfavorite}
+                      />
+                    )}
+                  />
+                }
+              />
+
               <Route path="*" element={<Navigate to="/" replace />} />
             </>
           )}
