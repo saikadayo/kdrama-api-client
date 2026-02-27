@@ -6,7 +6,7 @@ export const Footer = () => {
       <Container fluid="md">
         <Row>
           <Col>
-            <h5 className="footer-title">Jessica Phu</h5>
+            <h5 className="footer-title">Achievement 3</h5>
             <p className="footer-text">
               A movie collection of various Korean dramas.
             </p>
